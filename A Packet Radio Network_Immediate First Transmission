@@ -1,0 +1,132 @@
+%variance and initialization
+maxtime=200;
+clients=2;%number of packet radios
+Datasize=50;
+BufferSize=5;
+BufferIndex=zeros(clients);
+timer=0;
+packet_loss=zeros(clients,Datasize);
+p=0.7;%the probability of transmit
+nu=0.3;%the probability of generating data
+
+buffer=zeros(clients,BufferSize);
+Data=zeros(clients,Datasize);
+
+%generate the random numbers
+randnu=rand(clients,maxtime);
+randp=rand(clients,Datasize);
+Transmit=zeros(clients,maxtime);
+
+num=0;
+a=0;
+numofpack=0;
+numberofloss=0;
+boccupancy=zeros(clients,maxtime);
+
+%generate the sent data
+for nmd=1:clients
+    for nmdp=1:Datasize
+        if(randp(nmd,nmdp)<=nu)
+            Data(nmd,nmdp)=1;
+        end
+    end
+end
+
+
+for nmd=1:clients
+    for nmdp=1:maxtime
+        if(randnu(nmd,nmdp)<p)
+            Transmit(nmd,nmdp)=1;
+        end
+    end
+    BufferIndex(nmd)=1;
+end
+    
+%disp(Transmit);
+
+
+
+
+
+
+
+
+
+for timer=1:Datasize
+    
+    %write buffer
+   for nmd=1:clients 
+       if(Data(nmd,timer)==1)
+           if(BufferIndex(nmd)<=BufferSize)
+%                index=BufferIndex(nmd);
+%                buffer(nmd,index)=1;
+               buffer(nmd,BufferIndex(nmd))=1;
+               BufferIndex(nmd)=BufferIndex(nmd)+1;
+           else
+               packet_loss(nmd,timer)=1;
+               
+           end
+       end
+   end
+
+num=0;
+a=0;
+for   terr=1:clients
+    if(BufferIndex(terr)==1)
+        a=terr;
+        num=num+1;   
+    else
+    if(buffer(terr,1)*Transmit(terr,timer)==1)
+    a=terr;
+    num=num+1;
+    end
+    boccupancy(terr,timer)=BufferIndex(terr)-1;
+    end
+
+end
+    if(num==1)
+        for tmp=2:BufferSize
+            buffer(a,tmp-1)=buffer(a,tmp);
+        end
+        buffer(a,tmp)=0;
+        if( BufferIndex(a)~=1)
+        BufferIndex(a)=BufferIndex(a)-1;
+        end
+    end
+
+
+end
+
+
+for m=timer:maxtime
+    num=0;
+    a=0;
+for   terr=1:clients
+    if(buffer(terr,1)*Transmit(terr,m)==1)
+        a=terr;
+        num=num+1;
+    end
+end
+    if(num==1)
+        for tmp=2:BufferSize
+            buffer(a,tmp-1)=buffer(a,tmp);
+        end
+        buffer(a,tmp)=0;
+        if( BufferIndex(a)~=1)
+        BufferIndex(a)=BufferIndex(a)-1;
+        end
+    end
+    if(sum(buffer(1,:))==0)
+        break;
+    end
+end
+
+numofpack=sum(Data(:));
+numberofloss=sum(packet_loss(:));
+fprintf("the throughput is %f\n",(numofpack-numberofloss)/(m+timer-2) );
+fprintf("Delay in slots %d\n",m+timer-2);
+fprintf("the packet loss %d\n",numberofloss);
+histogram(boccupancy)
+title("The Distribution of Buffer Occupancy");
+xlabel("Buffer Size");
+ylabel("Times");
