@@ -1,0 +1,217 @@
+maxnum=500;
+officehour=480;
+guestnum=exprnd(2,1,maxnum);
+modelbi=random('Binomial',1,0.75);%using inloop
+rannum=rand(5,maxnum);
+no=zeros(2,maxnum);
+indexofno=ones(2,1);
+s2=ones(1,maxnum);
+s5=ones(1,maxnum);
+expensetime=zeros(2,maxnum);
+bankteller=zeros(3,1);
+line=zeros(4,maxnum);
+lengthofline=zeros(1,2);
+lengthnum=zeros(2,480);
+idletime=zeros(1,officehour);
+index=1;
+time=1;
+people=0;
+slength=zeros(1,480);
+for tmp=1:maxnum
+ for tem=1:5
+     s5(1,tmp)=s5(1,tmp)*rannum(tem,tmp);
+ end
+ for tem=1:2
+     s2(1,tmp)=s2(1,tmp)*rannum(tem,tmp);
+ end
+ s2(1,tmp)=-1*log(s2(1,tmp))/1;
+ s5(1,tmp)=-6*log(s5(1,tmp))/5;
+if(tmp>1)
+    guestnum(1,tmp)=guestnum(1,tmp)+guestnum(1,tmp-1);
+end
+end
+
+% disp(guestnum);
+%disp();
+%t1=clock;
+while 1
+    if(lengthofline(1,1)~=0)
+         if(bankteller(1,1)<=0)
+         bankteller(1,1)=line(1,1);
+         no(1,indexofno(1,1))=line(3,1);
+         indexofno(1,1)=indexofno(1,1)+1;
+         lengthofline(1,1)=lengthofline(1,1)-1;
+         for tp=1:maxnum-1
+             line(1,tp)=line(1,tp+1);
+             line(3,tp)=line(3,tp+1);
+         end
+         line(1,tp-1)=0;
+         line(3,tp-1)=0;
+         else
+         if(bankteller(2,1)<=0)
+             bankteller(2,1)=line(1,1);
+             no(1,indexofno(1,1))=line(3,1);
+              indexofno(1,1)=indexofno(1,1)+1;
+             lengthofline(1,1)=lengthofline(1,1)-1;
+         for tp=1:maxnum-1
+              line(1,tp)=line(1,tp+1);
+              line(3,tp)=line(3,tp+1);
+         end
+         line(1,tp-1)=0;
+         line(3,tp-1)=0;
+         else
+        if(bankteller(3,1)<=0)
+          bankteller(3,1)=line(1,1);
+           no(1,indexofno(1,1))=line(3,1);
+           indexofno(1,1)=indexofno(1,1)+1;
+          lengthofline(1,1)=lengthofline(1,1)-1;
+        for tp=1:maxnum-1
+             line(1,tp)=line(1,tp+1);
+             line(3,tp)=line(3,tp+1);
+        end
+         line(1,tp-1)=0;
+         line(3,tp-1)=0;
+        end
+         end
+         end
+    end
+     if(lengthofline(1,2)~=0)
+        
+         if(bankteller(2,1)<=0)
+             bankteller(2,1)=line(2,1);
+             no(1,indexofno(2,1))=line(4,1);
+             indexofno(2,1)=indexofno(2,1)+1;
+             lengthofline(1,2)=lengthofline(1,2)-1;
+         for tp=1:maxnum-1
+              line(2,tp)=line(2,tp+1);
+              line(4,tp)=line(4,tp+1);
+         end
+         line(2,tp-1)=0;
+         line(4,tp-1)=0;
+         else
+        if(bankteller(3,1)<=0)
+          bankteller(3,1)=line(1,1);
+          no(1,indexofno(2,1))=line(4,1);
+             indexofno(2,1)=indexofno(2,1)+1;
+          lengthofline(1,2)=lengthofline(1,2)-1;
+        for tp=1:maxnum-1
+             line(2,tp)=line(2,tp+1);
+              line(4,tp)=line(4,tp+1);
+        end
+        line(2,tp-1)=0;
+         line(4,tp-1)=0;
+        end
+         end
+     end
+    
+    if(time>guestnum(1,index))
+    index=index+1;
+ %  expensetime(1,index)=0;
+    if(bankteller(1,1)<=0||bankteller(2,1)<=0||bankteller(3,1)<=0)
+        if(random('Binomial',1,0.75)==1)
+       if(bankteller(1,1)<=0)
+            bankteller(1,1)=s2(1,index);
+            indexofno(1,1)=indexofno(1,1)+1;
+         bankteller(1,1)=s2(1,index);
+       else
+       if(bankteller(2,1)<=0)
+             bankteller(2,1)=s2(1,index);
+              indexofno(1,1)=indexofno(1,1)+1;
+       else
+        if(bankteller(3,1)<=0)
+          bankteller(3,1)=s2(1,index);
+           indexofno(1,1)=indexofno(1,1)+1;
+        end
+       end
+       end
+        else
+       if(bankteller(2,1)<=0)
+            bankteller(2,1)=s5(1,index);
+            indexofno(2,1)=indexofno(2,1)+1;
+       end
+        if(bankteller(3,1)<=0)
+         bankteller(3,1)=s5(1,index);
+         indexofno(2,1)=indexofno(2,1)+1;
+        end
+        end
+    else
+        if(random('Binomial',1,0.75)==1)
+        line(1,lengthofline(1,1)+1)=s2(1,index);
+        lengthofline(1,1)=lengthofline(1,1)+1;
+        else
+            line(2,lengthofline(1,2)+1)=s5(1,index);
+            lengthofline(1,2)=lengthofline(1,2)+1;
+        end
+    end
+    end
+      lengthnum(1,time)=lengthofline(1,1);
+       lengthnum(2,time)=lengthofline(1,2);
+     if(lengthnum(1,time)==0&&lengthnum(2,time))
+        idletime(1,time)=1;
+    end
+        
+    %line(1,lengthofline)=;
+    %t2=clock;
+    %if(etime(t2,t1)>480)
+    if(time>officehour)
+    break;
+    end
+    time=time+1;
+    %end
+    if(bankteller(1,1)>0)
+        bankteller(1,1)= bankteller(1,1)-1;
+    end
+    if(bankteller(2,1)>0)
+        bankteller(2,1)= bankteller(2,1)-1;
+    end
+    if(bankteller(3,1)>0)
+        bankteller(3,1)= bankteller(3,1)-1;
+    end
+    
+    for abc=1:lengthofline(1,1)+1
+    line(3,abc)=line(3,abc)+1;
+    end 
+    for abc=1:lengthofline(1,2)+1
+    line(4,abc)=line(4,abc)+1;
+    end 
+        
+end
+% fprintf("%d",time);
+for tmp=1:480
+    if(lengthnum(1,tmp)~=0)
+        people=people+1/lengthnum(1,tmp);
+    end
+end
+totalguests=index-1;
+
+
+waitingtime=zeros(1,index+1);
+for temp=1:indexofno(1,1)
+    waitingtime(1,temp)=no(1,temp);
+end
+temp=temp-1;
+for tem=1:indexofno(2,1)
+waitingtime(1,temp+tem)=no(2,temp);
+end
+tem=tem-1;
+
+for tmp=1:480
+    for tem=1:2
+        slength(1,tmp)=slength(1,tmp)+lengthnum(tem,tmp);
+    end
+end
+fprintf("The mean of queue length is %f\n",mean(slength));
+fprintf("The variance of queue length is %f\n",var(slength));
+fprintf("The mean of waiting time is %f\n",mean(waitingtime));
+fprintf("The variance of waiting time is %f\n",var(waitingtime));
+fprintf("The fraction of time that servers are idle: %f\n",1-sum(idletime)/480.0);
+figure(1);
+hist(slength);
+title('Length Distribution');
+xlabel('the value of queue length');
+ylabel('appearance time');
+figure(2);
+hist(waitingtime);
+title('Waiting Time Distribution');
+xlabel('the value of waiting time');
+ylabel('appearance time');
